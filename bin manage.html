@@ -13,38 +13,94 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --success-color: #2ecc71;
-            --warning-color: #f1c40f;
-            --danger-color: #e74c3c;
-            --background-color: #ecf0f1;
+            --primary: #1a237e;
+            --primary-dark: #303f9f;
+            --secondary: #475569;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --background: #f5f6fa;
+            --white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
         }
 
         body {
-            background-color: var(--background-color);
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
         .dashboard {
-            padding: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
         }
 
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        .sidebar {
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            color: var(--white);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-dark);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 600;
         }
 
         .grid-container {
@@ -55,10 +111,10 @@
         }
 
         .card {
-            background: white;
+            background: var(--white);
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .full-width {
@@ -77,7 +133,7 @@
         }
 
         .metric-card {
-            background: white;
+            background: var(--white);
             padding: 15px;
             border-radius: 8px;
             text-align: center;
@@ -91,7 +147,7 @@
         .metric-value {
             font-size: 24px;
             font-weight: bold;
-            color: var(--accent-color);
+            color: var(--primary);
             margin: 10px 0;
         }
 
@@ -104,12 +160,12 @@
         .bin-table td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border);
         }
 
         .bin-table th {
-            background-color: var(--primary-color);
-            color: white;
+            background-color: var(--primary);
+            color: var(--white);
         }
 
         .bin-table tr:hover {
@@ -124,14 +180,9 @@
             margin-right: 5px;
         }
 
-        .status-good { background-color: var(--success-color); }
-        .status-warning { background-color: var(--warning-color); }
-        .status-critical { background-color: var(--danger-color); }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-        }
+        .status-good { background-color: var(--success); }
+        .status-warning { background-color: var(--warning); }
+        .status-critical { background-color: var(--danger); }
 
         .filter-section {
             display: flex;
@@ -142,95 +193,122 @@
         .filter-section select {
             padding: 8px;
             border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
+            background-color: var(--white);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <div class="header">
-            <h1>Bin Management Dashboard</h1>
-            <div class="filter-section">
-                <select id="area-filter">
-                    <option value="all">All Areas</option>
-                    <option value="bangalore">Bangalore</option>
-                    <option value="mysore">Mysore</option>
-                    <option value="mangalore">Mangalore</option>
-                    <option value="hubli">Hubli-Dharwad</option>
-                    <option value="belgaum">Belgaum</option>
-                </select>
-                <select id="status-filter">
-                    <option value="all">All Status</option>
-                    <option value="good">Good</option>
-                    <option value="warning">Warning</option>
-                    <option value="critical">Critical</option>
-                </select>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>NEEV</h1>
             </div>
-        </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">📊 Dashboard</a>
+                <a href="bin manage.html" class="nav-item active">🗑️ Bins Management</a>
+                <a href="route2.html" class="nav-item">🚛 Routes</a>
+                <a href="analytics.html" class="nav-item">📈 Analytics</a>
+                <a href="setting.html" class="nav-item">⚙️ Settings</a>
+            </nav>
+        </aside>
 
-        <div class="grid-container">
-            <div class="card full-width">
-                <h2>Bin Distribution Heatmap</h2>
-                <div id="heatmap"></div>
-            </div>
-
-            <div class="card">
-                <h2>Fill Level Distribution</h2>
-                <div class="chart-container">
-                    <canvas id="fillLevelChart"></canvas>
+        <main class="main-content">
+            <div class="content-header">
+                <h1 class="page-title">Bin Management Dashboard</h1>
+                <div class="filter-section">
+                    <select id="area-filter">
+                        <option value="all">All Areas</option>
+                        <option value="bangalore">Bangalore</option>
+                        <option value="mysore">Mysore</option>
+                        <option value="mangalore">Mangalore</option>
+                        <option value="hubli">Hubli-Dharwad</option>
+                        <option value="belgaum">Belgaum</option>
+                    </select>
+                    <select id="status-filter">
+                        <option value="all">All Status</option>
+                        <option value="good">Good</option>
+                        <option value="warning">Warning</option>
+                        <option value="critical">Critical</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Collection Frequency</h2>
-                <div class="chart-container">
-                    <canvas id="collectionChart"></canvas>
+            <div class="grid-container">
+                <div class="card full-width">
+                    <h2>Bin Distribution Heatmap</h2>
+                    <div id="heatmap"></div>
                 </div>
-            </div>
 
-            <div class="card full-width">
-                <h2>Bin Analytics Overview</h2>
-                <div class="analytics-grid">
-                    <div class="metric-card">
-                        <h3>Total Bins</h3>
-                        <div class="metric-value">245</div>
-                        <div class="metric-trend">↑ 5% from last month</div>
-                    </div>
-                    <div class="metric-card">
-                        <h3>Average Fill Rate</h3>
-                        <div class="metric-value">67%</div>
-                        <div class="metric-trend">↓ 3% from last week</div>
-                    </div>
-                    <div class="metric-card">
-                        <h3>Critical Bins</h3>
-                        <div class="metric-value">12</div>
-                        <div class="metric-trend">↑ 2 since yesterday</div>
-                    </div>
-                    <div class="metric-card">
-                        <h3>Collection Efficiency</h3>
-                        <div class="metric-value">89%</div>
-                        <div class="metric-trend">↑ 7% this month</div>
+                <div class="card">
+                    <h2>Fill Level Distribution</h2>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="fillLevelChart"></canvas>
                     </div>
                 </div>
-            </div>
 
-            <div class="card full-width">
-                <h2>Bin Status Details</h2>
-                <table class="bin-table">
-                    <thead>
-                        <tr>
-                            <th>Bin ID</th>
-                            <th>Location</th>
-                            <th>Fill Level</th>
-                            <th>Status</th>
-                            <th>Last Collection</th>
-                            <th>Next Collection</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bin-table-body"></tbody>
-                </table>
+                <div class="card">
+                    <h2>Collection Frequency</h2>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="collectionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h2>Bin Analytics Overview</h2>
+                    <div class="analytics-grid">
+                        <div class="metric-card">
+                            <h3>Total Bins</h3>
+                            <div class="metric-value">245</div>
+                            <div class="metric-trend">↑ 5% from last month</div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Average Fill Rate</h3>
+                            <div class="metric-value">67%</div>
+                            <div class="metric-trend">↓ 3% from last week</div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Critical Bins</h3>
+                            <div class="metric-value">12</div>
+                            <div class="metric-trend">↑ 2 since yesterday</div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Collection Efficiency</h3>
+                            <div class="metric-value">89%</div>
+                            <div class="metric-trend">↑ 7% this month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h2>Bin Status Details</h2>
+                    <table class="bin-table">
+                        <thead>
+                            <tr>
+                                <th>Bin ID</th>
+                                <th>Location</th>
+                                <th>Fill Level</th>
+                                <th>Status</th>
+                                <th>Last Collection</th>
+                                <th>Next Collection</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bin-table-body"></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
@@ -240,29 +318,20 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Sample bin data for Karnataka cities
+        // Sample bin data
         const binsData = [
-            // Bangalore
             { id: 'BLR001', lat: 12.9716, lng: 77.5946, fillLevel: 85, status: 'critical', lastCollection: '2024-01-18 08:30', nextCollection: '2024-01-19 08:30', location: 'MG Road, Bangalore' },
             { id: 'BLR002', lat: 12.9854, lng: 77.7081, fillLevel: 45, status: 'good', lastCollection: '2024-01-18 09:15', nextCollection: '2024-01-19 09:15', location: 'Whitefield, Bangalore' },
             { id: 'BLR003', lat: 13.0298, lng: 77.5997, fillLevel: 75, status: 'warning', lastCollection: '2024-01-18 07:45', nextCollection: '2024-01-19 07:45', location: 'Hebbal, Bangalore' },
-            
-            // Mysore
             { id: 'MYS001', lat: 12.2958, lng: 76.6394, fillLevel: 30, status: 'good', lastCollection: '2024-01-18 10:00', nextCollection: '2024-01-19 10:00', location: 'Palace Road, Mysore' },
             { id: 'MYS002', lat: 12.3106, lng: 76.6503, fillLevel: 90, status: 'critical', lastCollection: '2024-01-18 06:20', nextCollection: '2024-01-19 06:20', location: 'Saraswathipuram, Mysore' },
-            
-            // Mangalore
             { id: 'MNG001', lat: 12.8698, lng: 74.8433, fillLevel: 70, status: 'warning', lastCollection: '2024-01-18 11:30', nextCollection: '2024-01-19 11:30', location: 'City Center Mall, Mangalore' },
             { id: 'MNG002', lat: 12.8698, lng: 74.8833, fillLevel: 55, status: 'good', lastCollection: '2024-01-18 12:45', nextCollection: '2024-01-19 12:45', location: 'Hampankatta, Mangalore' },
-            
-            // Hubli-Dharwad
             { id: 'HBL001', lat: 15.3647, lng: 75.1240, fillLevel: 95, status: 'critical', lastCollection: '2024-01-18 13:20', nextCollection: '2024-01-19 13:20', location: 'Hubli Bus Terminal' },
-            
-            // Belgaum
             { id: 'BLG001', lat: 15.8497, lng: 74.4977, fillLevel: 60, status: 'warning', lastCollection: '2024-01-18 14:15', nextCollection: '2024-01-19 14:15', location: 'College Road, Belgaum' }
         ];
 
-        // Create heatmap data points
+        // Create heatmap data
         const heatmapData = binsData.map(bin => {
             const intensity = bin.fillLevel / 100;
             return [bin.lat, bin.lng, intensity];
@@ -275,10 +344,10 @@
             maxZoom: 10,
             max: 1.0,
             gradient: {
-                0.4: '#2ecc71',
-                0.6: '#f1c40f',
-                0.8: '#e67e22',
-                1.0: '#e74c3c'
+                0.4: '#4caf50',
+                0.6: '#ff9800',
+                0.8: '#f44336',
+                1.0: '#d32f2f'
             }
         }).addTo(map);
 
@@ -294,6 +363,10 @@
             `);
         });
 
+
+
+        // Previous map initialization code remains the same...
+
         // Fill Level Chart
         const fillLevelCtx = document.getElementById('fillLevelChart').getContext('2d');
         new Chart(fillLevelCtx, {
@@ -304,17 +377,22 @@
                     label: 'Number of Bins',
                     data: [15, 30, 45, 35, 20],
                     backgroundColor: [
-                        '#2ecc71',
-                        '#3498db',
-                        '#f1c40f',
-                        '#e67e22',
-                        '#e74c3c'
+                        '#4caf50',
+                        '#8bc34a',
+                        '#ff9800',
+                        '#f44336',
+                        '#d32f2f'
                     ]
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
             }
         });
 
@@ -327,95 +405,127 @@
                 datasets: [{
                     label: 'Collections per Day',
                     data: [45, 52, 48, 55, 49, 35, 30],
-                    borderColor: '#3498db',
+                    borderColor: '#1a237e',
                     tension: 0.4,
                     fill: true,
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)'
+                    backgroundColor: 'rgba(26, 35, 126, 0.1)'
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        // Populate bin table
-        const tableBody = document.getElementById('bin-table-body');
-        binsData.forEach(bin => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${bin.id}</td>
-                <td>${bin.location}</td>
-                <td>${bin.fillLevel}%</td>
-                <td><span class="status-indicator status-${bin.status}"></span>${bin.status}</td>
-                <td>${bin.lastCollection}</td>
-                <td>${bin.nextCollection}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-        // Filter functionality
-        document.getElementById('area-filter').addEventListener('change', function(e) {
-            const selectedArea = e.target.value;
-            if (selectedArea === 'all') {
-                map.setView([12.9716, 77.5946], 7);
-            } else {
-                const areaCoordinates = {
-                    'bangalore': [12.9716, 77.5946],
-                    'mysore': [12.2958, 76.6394],
-                    'mangalore': [12.8698, 74.8433],
-                    'hubli': [15.3647, 75.1240],
-                    'belgaum': [15.8497, 74.4977]
-                };
-                
-                // Set view to selected area
-                if (selectedArea === 'all') {
-                    map.setView([12.9716, 77.5946], 7);
-                } else {
-                    map.setView(areaCoordinates[selectedArea], 12);
-                }
-
-                // Filter table rows based on selected area
-                const rows = tableBody.getElementsByTagName('tr');
-                for (let row of rows) {
-                    const location = row.getElementsByTagName('td')[1].textContent;
-                    if (selectedArea === 'all' || location.toLowerCase().includes(selectedArea)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
             }
         });
 
-        document.getElementById('status-filter').addEventListener('change', function(e) {
-            const selectedStatus = e.target.value;
-            const rows = tableBody.getElementsByTagName('tr');
+        // Populate bin table
+        const tableBody = document.getElementById('bin-table-body');
+        function populateTable(data) {
+            tableBody.innerHTML = '';
+            data.forEach(bin => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bin.id}</td>
+                    <td>${bin.location}</td>
+                    <td>${bin.fillLevel}%</td>
+                    <td><span class="status-indicator status-${bin.status}"></span>${bin.status}</td>
+                    <td>${bin.lastCollection}</td>
+                    <td>${bin.nextCollection}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Initial table population
+        populateTable(binsData);
+
+        // Filter functionality
+        document.getElementById('area-filter').addEventListener('change', function(e) {
+            const selectedArea = e.target.value.toLowerCase();
+            let filteredData = binsData;
             
-            for (let row of rows) {
-                const status = row.getElementsByTagName('td')[3].textContent.toLowerCase();
-                if (selectedStatus === 'all' || status.includes(selectedStatus)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+            if (selectedArea !== 'all') {
+                filteredData = binsData.filter(bin => 
+                    bin.location.toLowerCase().includes(selectedArea)
+                );
+                
+                // Find the coordinates of the first bin in the filtered data
+                if (filteredData.length > 0) {
+                    map.setView([filteredData[0].lat, filteredData[0].lng], 12);
                 }
+            } else {
+                map.setView([12.9716, 77.5946], 7); // Reset to Karnataka view
             }
+            
+            populateTable(filteredData);
+            updateMetrics(filteredData);
         });
 
-        // Update metrics periodically (simulate real-time updates)
-        setInterval(() => {
-            // Simulate random changes in metrics
-            const totalBins = document.querySelector('.metric-card:nth-child(1) .metric-value');
-            const fillRate = document.querySelector('.metric-card:nth-child(2) .metric-value');
-            const criticalBins = document.querySelector('.metric-card:nth-child(3) .metric-value');
-            const efficiency = document.querySelector('.metric-card:nth-child(4) .metric-value');
+        document.getElementById('status-filter').addEventListener('change', function(e) {
+            const selectedStatus = e.target.value.toLowerCase();
+            let filteredData = binsData;
+            
+            if (selectedStatus !== 'all') {
+                filteredData = binsData.filter(bin => 
+                    bin.status.toLowerCase() === selectedStatus
+                );
+            }
+            
+            populateTable(filteredData);
+            updateMetrics(filteredData);
+        });
 
-            // Random fluctuations in metrics
-            totalBins.textContent = (parseInt(totalBins.textContent) + Math.floor(Math.random() * 3) - 1).toString();
-            fillRate.textContent = (parseInt(fillRate.textContent) + Math.floor(Math.random() * 5) - 2) + '%';
-            criticalBins.textContent = (parseInt(criticalBins.textContent) + Math.floor(Math.random() * 3) - 1).toString();
-            efficiency.textContent = (parseInt(efficiency.textContent) + Math.floor(Math.random() * 3) - 1) + '%';
-        }, 5000);
+        // Update metrics based on filtered data
+        function updateMetrics(data) {
+            const totalBins = data.length;
+            const avgFillRate = (data.reduce((acc, bin) => acc + bin.fillLevel, 0) / totalBins).toFixed(1);
+            const criticalBins = data.filter(bin => bin.status === 'critical').length;
+            
+            document.querySelectorAll('.metric-card .metric-value')[0].textContent = totalBins;
+            document.querySelectorAll('.metric-card .metric-value')[1].textContent = avgFillRate + '%';
+            document.querySelectorAll('.metric-card .metric-value')[2].textContent = criticalBins;
+        }
+
+        // Real-time updates simulation
+        setInterval(() => {
+            // Simulate random changes in fill levels
+            binsData.forEach(bin => {
+                const change = Math.floor(Math.random() * 5) - 2; // Random change between -2 and +2
+                bin.fillLevel = Math.max(0, Math.min(100, bin.fillLevel + change));
+                
+                // Update status based on fill level
+                if (bin.fillLevel < 40) bin.status = 'good';
+                else if (bin.fillLevel < 75) bin.status = 'warning';
+                else bin.status = 'critical';
+            });
+
+            // Update table and metrics
+            const activeFilter = document.getElementById('status-filter').value;
+            let filteredData = binsData;
+            if (activeFilter !== 'all') {
+                filteredData = binsData.filter(bin => 
+                    bin.status.toLowerCase() === activeFilter.toLowerCase()
+                );
+            }
+            
+            populateTable(filteredData);
+            updateMetrics(filteredData);
+
+            // Update heatmap data
+            const newHeatmapData = binsData.map(bin => {
+                const intensity = bin.fillLevel / 100;
+                return [bin.lat, bin.lng, intensity];
+            });
+            heat.setLatLngs(newHeatmapData);
+
+        }, 10000); // Update every 10 seconds
+
+        // Initial metrics update
+        updateMetrics(binsData);
     </script>
 </body>
 </html>
