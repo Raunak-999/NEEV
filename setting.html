@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEEV - Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1a237e;
+            --primary-dark: #303f9f;
+            --secondary: #475569;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --background: #f5f6fa;
+            --white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            color: var(--white);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-dark);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 600;
+        }
+
+        .settings-section {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--white);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-label {
+            margin-left: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .save-button {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+        .save-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>NEEV</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item active">📊 Dashboard</a>
+                <a href="bin manage.html" class="nav-item">🗑️ Bins Management</a>
+                <a href="route2.html" class="nav-item">🚛 Routes</a>
+                <a href="analytics.html" class="nav-item">📈 Analytics</a>
+                <a href="setting.html" class="nav-item">⚙️ Settings</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <h2 class="page-title">Settings</h2>
+                <div id="current-time"></div>
+            </header>
+
+            <section class="settings-section">
+                <h3 class="settings-title">Notification Settings</h3>
+                <div class="setting-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailNotifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Email Notifications</span>
+                </div>
+                <div class="setting-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="smsNotifications">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">SMS Notifications</span>
+                </div>
+                <div class="setting-row">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="criticalAlerts" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Critical Alerts</span>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h3 class="settings-title">System Settings</h3>
+                <div class="form-group">
+                    <label class="form-label">Default State</label>
+                    <select class="form-select" id="defaultState">
+                        <option value="">Select State</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Gujarat">Gujarat</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fill Level Warning Threshold (%)</label>
+                    <input type="number" class="form-input" id="warningThreshold" value="70" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Critical Level Threshold (%)</label>
+                    <input type="number" class="form-input" id="criticalThreshold" value="90" min="0" max="100">
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h3 class="settings-title">Account Settings</h3>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" value="admin@smartbins.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Language</label>
+                    <select class="form-select" id="language">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="mr">Marathi</option>
+                        <option value="gu">Gujarati</option>
+                    </select>
+                </div>
+                <button type="button" class="save-button" onclick="saveSettings()">Save Changes</button>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function updateTime() {
+            const timeElement = document.getElementById('current-time');
+            timeElement.textContent = new Date().toLocaleString();
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function saveSettings() {
+            // Collect all settings
+            const settings = {
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                smsNotifications: document.getElementById('smsNotifications').checked,
+                criticalAlerts: document.getElementById('criticalAlerts').checked,
+                defaultState: document.getElementById('defaultState').value,
+                warningThreshold: document.getElementById('warningThreshold').value,
+                criticalThreshold: document.getElementById('criticalThreshold').value,
+                email: document.getElementById('email').value,
+                language: document.getElementById('language').value
+            };
+
+            // In a real application, you would send this to a server
+            console.log('Saving settings:', settings);
+
+            // Show success message
+            const toast = document.getElementById('toast');
+            toast.textContent = 'Settings saved successfully!';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Load saved settings (simulated)
+        document.addEventListener('DOMContentLoaded', function() {
+            // In a real application, you would fetch these from a server
+            const savedSettings = {
+                defaultState: 'Maharashtra',
+                warningThreshold: 70,
+                criticalThreshold: 90,
+                email: 'admin@smartbins.com',
+                language: 'en'
+            };
+
+            // Apply saved settings
+            Object.entries(savedSettings).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = value;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Optimization Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        :root {
+            --primary-color: #1e3799;
+            --secondary-color: #4a69bd;
+            --accent-color: #60a3bc;
+            --success-color: #38ada9;
+            --warning-color: #fa983a;
+            --danger-color: #eb2f06;
+            --background-color: #f1f2f6;
+        }
+
+        body {
+            background-color: var(--background-color);
+        }
+
+        .dashboard {
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .map-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #route-map {
+            height: 600px;
+            border-radius: 10px;
+        }
+
+        .route-analytics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            background: var(--secondary-color);
+        }
+
+        .button.secondary {
+            background: var(--accent-color);
+        }
+
+        .route-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .route-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .route-item:hover {
+            background: #f5f5f5;
+            transform: translateX(5px);
+        }
+
+        .route-item.active {
+            border-color: var(--primary-color);
+            background: rgba(30, 55, 153, 0.1);
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            height: 200px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+
+        .custom-marker {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+        }
+
+        .route-path {
+            stroke-dasharray: 8, 8;
+            animation: dash 20s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header fade-in">
+            <h1>Route Optimization Dashboard</h1>
+            <div id="current-time"></div>
+        </div>
+
+        <div class="grid-container">
+            <div class="control-panel fade-in">
+                <div class="control-group">
+                    <label>Select Date</label>
+                    <input type="date" id="route-date">
+                </div>
+
+                <div class="control-group">
+                    <label>Vehicle Type</label>
+                    <select id="vehicle-type">
+                        <option value="all">All Vehicles</option>
+                        <option value="large">Large Trucks</option>
+                        <option value="medium">Medium Trucks</option>
+                        <option value="small">Small Trucks</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Priority Level</label>
+                    <select id="priority">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High Priority</option>
+                        <option value="medium">Medium Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                </div>
+
+                <button class="button">Optimize Routes</button>
+                <button class="button secondary">Reset Routes</button>
+
+                <div class="route-list">
+                    <h3>Major Routes</h3>
+                    <div class="route-item active">
+                        Connaught Place → Nehru Place
+                        <div>12 km • 35 min</div>
+                    </div>
+                    <div class="route-item">
+                        Nehru Place → Lajpat Nagar
+                        <div>8 km • 25 min</div>
+                    </div>
+                    <div class="route-item">
+                        Lajpat Nagar → Saket
+                        <div>10 km • 30 min</div>
+                    </div>
+                    <div class="route-item">
+                        Saket → Vasant Kunj
+                        <div>7 km • 20 min</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="routeEfficiencyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="map-container fade-in">
+                <div id="route-map"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--success-color);"></div>
+                        <span>Optimized Route</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--danger-color);"></div>
+                        <span>High Priority Areas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--warning-color);"></div>
+                        <span>Medium Priority Areas</span>
+                    </div>
+                </div>
+
+                <div class="route-analytics">
+                    <div class="metric-card">
+                        <h3>Total Distance</h3>
+                        <div class="metric-value">37 km</div>
+                        <div>↓ 15% from previous route</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Estimated Time</h3>
+                        <div class="metric-value">1h 50m</div>
+                        <div>↓ 20% from previous route</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Fuel Efficiency</h3>
+                        <div class="metric-value">85%</div>
+                        <div>↑ 10% improvement</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Areas Covered</h3>
+                        <div class="metric-value">5/5</div>
+                        <div>100% coverage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize map centered on Delhi, India
+        const map = L.map('route-map').setView([28.6139, 77.2090], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Local areas data with coordinates and priority levels
+        const cities = [
+            { name: "Connaught Place", coords: [28.6289, 77.2074], priority: "high" },
+            { name: "Nehru Place", coords: [28.5483, 77.2545], priority: "high" },
+            { name: "Lajpat Nagar", coords: [28.5707, 77.2472], priority: "high" },
+            { name: "Saket", coords: [28.5244, 77.2167], priority: "medium" },
+            { name: "Vasant Kunj", coords: [28.5394, 77.1555], priority: "medium" }
+        ];
+
+        // Add markers for each city
+        cities.forEach(city => {
+            const markerColor = city.priority === "high" ? "#eb2f06" : "#fa983a";
+            const marker = L.marker(city.coords).addTo(map);
+            marker.bindPopup(`
+                <b>${city.name}</b><br>
+                Priority: ${city.priority}<br>
+                Status: Active
+            `);
+        });
+
+        // Create optimized route path
+        const routeCoordinates = cities.map(city => city.coords);
+        const routePath = L.polyline(routeCoordinates, {
+            color: '#38ada9',
+            weight: 3,
+            opacity: 0.8,
+            className: 'route-path'
+        }).addTo(map);
+
+        // Add direction arrows along the route
+        routeCoordinates.forEach((coord, index) => {
+            if (index < routeCoordinates.length - 1) {
+                const midPoint = [
+                    (coord[0] + routeCoordinates[index + 1][0]) / 2,
+                    (coord[1] + routeCoordinates[index + 1][1]) / 2
+                ];
+                L.marker(midPoint, {
+                    icon: L.divIcon({
+                        html: '→',
+                        className: 'custom-marker',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map);
+            }
+        });
+
+        // Initialize route efficiency chart
+        const efficiencyCtx = document.getElementById('routeEfficiencyChart').getContext('2d');
+        new Chart(efficiencyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                datasets: [{
+                    label: 'Route Efficiency',
+                    data: [75, 82, 78, 85, 90],
+                    borderColor: 'var(--primary-color)',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(30, 55, 153, 0.1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Update current time
+        function updateTime() {
+            const timeElement = document.getElementById('current-time');
+            timeElement.textContent = new Date().toLocaleString();
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Add event listeners for route items
+        document.querySelectorAll('.route-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.route-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

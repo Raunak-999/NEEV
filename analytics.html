@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMC Waste Management Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        :root {
+            --primary-color: #138808;  /* Indian flag green */
+            --secondary-color: #FF9933; /* Indian flag saffron */
+            --accent-color: #000080;   /* Navy blue */
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --background-color: #f5f6fa;
+        }
+
+        body {
+            background-color: var(--background-color);
+        }
+
+        .dashboard {
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .corporation-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .corporation-logo {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .ward-selector {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .metric-trend {
+            font-size: 14px;
+        }
+
+        .trend-up { color: var(--primary-color); }
+        .trend-down { color: var(--danger-color); }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header fade-in">
+            <div class="corporation-info">
+                <div class="corporation-logo">PMC</div>
+                <div>
+                    <h1>पुणे महानगरपालिका</h1>
+                    <h2>Pune Municipal Corporation</h2>
+                    <h3>Waste Management Analytics</h3>
+                </div>
+            </div>
+            <div>
+                <select class="ward-selector">
+                    <option value="all">All Wards</option>
+                    <option value="aundh">Aundh Ward</option>
+                    <option value="kothrud">Kothrud Ward</option>
+                    <option value="hadapsar">Hadapsar Ward</option>
+                    <option value="bibwewadi">Bibwewadi Ward</option>
+                    <option value="dhanakawadi">Dhanakawadi Ward</option>
+                </select>
+                <input type="date" id="date-selector">
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="card metric-card fade-in">
+                <h3>Daily Waste Collection</h3>
+                <div class="metric-value">875 MT</div>
+                <div class="metric-trend trend-up">↑ 5% from last month</div>
+            </div>
+
+            <div class="card metric-card fade-in">
+                <h3>Segregation Rate</h3>
+                <div class="metric-value">68%</div>
+                <div class="metric-trend trend-up">↑ 12% improvement</div>
+            </div>
+
+            <div class="card metric-card fade-in">
+                <h3>Vehicle Efficiency</h3>
+                <div class="metric-value">92%</div>
+                <div class="metric-trend trend-up">↑ 3% optimization</div>
+            </div>
+
+            <div class="card metric-card fade-in">
+                <h3>Citizen Complaints</h3>
+                <div class="metric-value">127</div>
+                <div class="metric-trend trend-down">↓ 15% decrease</div>
+            </div>
+
+            <div class="card full-width fade-in">
+                <h2>Ward-wise Collection Analysis</h2>
+                <div class="chart-container">
+                    <canvas id="collectionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <h2>Waste Type Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="wasteTypeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card fade-in">
+                <h2>Complaints Resolution</h2>
+                <div class="chart-container">
+                    <canvas id="complaintsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card full-width fade-in">
+                <h2>Ward Performance Report</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ward Name</th>
+                            <th>Daily Collection (MT)</th>
+                            <th>Segregation Rate</th>
+                            <th>Vehicle Count</th>
+                            <th>Staff Count</th>
+                            <th>Complaints</th>
+                            <th>Resolution Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ward-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Collection Chart
+        const collectionCtx = document.getElementById('collectionChart').getContext('2d');
+        new Chart(collectionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Aundh', 'Kothrud', 'Hadapsar', 'Bibwewadi', 'Dhanakawadi'],
+                datasets: [{
+                    label: 'Daily Collection (MT)',
+                    data: [185, 210, 165, 175, 140],
+                    backgroundColor: '#138808'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Waste Type Chart
+        const wasteTypeCtx = document.getElementById('wasteTypeChart').getContext('2d');
+        new Chart(wasteTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Wet Waste', 'Dry Waste', 'Hazardous', 'Garden Waste', 'Others'],
+                datasets: [{
+                    data: [45, 30, 10, 10, 5],
+                    backgroundColor: [
+                        '#138808',
+                        '#FF9933',
+                        '#f44336',
+                        '#8bc34a',
+                        '#9e9e9e'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Complaints Chart
+        const complaintsCtx = document.getElementById('complaintsChart').getContext('2d');
+        new Chart(complaintsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Complaints',
+                    data: [180, 165, 150, 140, 135, 127],
+                    borderColor: '#000080',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Populate ward table
+        const wardData = [
+            { name: 'Aundh', collection: 185, segregation: '72%', vehicles: 12, staff: 45, complaints: 28, resolution: '95%' },
+            { name: 'Kothrud', collection: 210, segregation: '75%', vehicles: 15, staff: 52, complaints: 32, resolution: '93%' },
+            { name: 'Hadapsar', collection: 165, segregation: '65%', vehicles: 10, staff: 38, complaints: 25, resolution: '91%' },
+            { name: 'Bibwewadi', collection: 175, segregation: '68%', vehicles: 11, staff: 42, complaints: 22, resolution: '94%' },
+            { name: 'Dhanakawadi', collection: 140, segregation: '62%', vehicles: 9, staff: 35, complaints: 20, resolution: '90%' }
+        ];
+
+        const tableBody = document.getElementById('ward-table');
+        wardData.forEach(ward => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${ward.name}</td>
+                <td>${ward.collection}</td>
+                <td>${ward.segregation}</td>
+                <td>${ward.vehicles}</td>
+                <td>${ward.staff}</td>
+                <td>${ward.complaints}</td>
+                <td>${ward.resolution}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Set default date
+        document.getElementById('date-selector').valueAsDate = new Date();
+    </script>
+</body>
+</html>
