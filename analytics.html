@@ -10,26 +10,80 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         :root {
-            --primary-color: #138808;  /* Indian flag green */
-            --secondary-color: #FF9933; /* Indian flag saffron */
-            --accent-color: #000080;   /* Navy blue */
-            --warning-color: #ff9800;
-            --danger-color: #f44336;
-            --background-color: #f5f6fa;
+            --primary: #1a237e;
+            --primary-dark: #303f9f;
+            --secondary: #475569;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --background: #f5f6fa;
+            --white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
         }
 
         body {
-            background-color: var(--background-color);
+            background-color: var(--background);
         }
 
         .dashboard {
-            padding: 20px;
-            max-width: 1800px;
-            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            color: var(--white);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-dark);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         .header {
@@ -52,7 +106,7 @@
         .corporation-logo {
             width: 60px;
             height: 60px;
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -73,6 +127,7 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
+            padding: 20px;
         }
 
         .card {
@@ -90,7 +145,7 @@
         .metric-value {
             font-size: 32px;
             font-weight: bold;
-            color: var(--primary-color);
+            color: var(--primary);
             margin: 10px 0;
         }
 
@@ -98,8 +153,8 @@
             font-size: 14px;
         }
 
-        .trend-up { color: var(--primary-color); }
-        .trend-down { color: var(--danger-color); }
+        .trend-up { color: var(--primary); }
+        .trend-down { color: var(--danger); }
 
         .chart-container {
             height: 300px;
@@ -119,7 +174,7 @@
         }
 
         th {
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             color: white;
         }
 
@@ -127,104 +182,120 @@
             grid-column: 1 / -1;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
+            .sidebar {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <div class="header fade-in">
-            <div class="corporation-info">
-                <div class="corporation-logo">PMC</div>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>NEEV</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">📊 Dashboard</a>
+                <a href="bin manage.html" class="nav-item">🗑️ Bins Management</a>
+                <a href="route2.html" class="nav-item">🚛 Routes</a>
+                <a href="analytics.html" class="nav-item active">📈 Analytics</a>
+                <a href="setting.html" class="nav-item">⚙️ Settings</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <div class="corporation-info">
+                    <div class="corporation-logo">PMC</div>
+                    <div>
+                        <h1>पुणे महानगरपालिका</h1>
+                        <h2>Pune Municipal Corporation</h2>
+                        <h3>Waste Management Analytics</h3>
+                    </div>
+                </div>
                 <div>
-                    <h1>पुणे महानगरपालिका</h1>
-                    <h2>Pune Municipal Corporation</h2>
-                    <h3>Waste Management Analytics</h3>
-                </div>
-            </div>
-            <div>
-                <select class="ward-selector">
-                    <option value="all">All Wards</option>
-                    <option value="aundh">Aundh Ward</option>
-                    <option value="kothrud">Kothrud Ward</option>
-                    <option value="hadapsar">Hadapsar Ward</option>
-                    <option value="bibwewadi">Bibwewadi Ward</option>
-                    <option value="dhanakawadi">Dhanakawadi Ward</option>
-                </select>
-                <input type="date" id="date-selector">
-            </div>
-        </div>
-
-        <div class="grid-container">
-            <div class="card metric-card fade-in">
-                <h3>Daily Waste Collection</h3>
-                <div class="metric-value">875 MT</div>
-                <div class="metric-trend trend-up">↑ 5% from last month</div>
-            </div>
-
-            <div class="card metric-card fade-in">
-                <h3>Segregation Rate</h3>
-                <div class="metric-value">68%</div>
-                <div class="metric-trend trend-up">↑ 12% improvement</div>
-            </div>
-
-            <div class="card metric-card fade-in">
-                <h3>Vehicle Efficiency</h3>
-                <div class="metric-value">92%</div>
-                <div class="metric-trend trend-up">↑ 3% optimization</div>
-            </div>
-
-            <div class="card metric-card fade-in">
-                <h3>Citizen Complaints</h3>
-                <div class="metric-value">127</div>
-                <div class="metric-trend trend-down">↓ 15% decrease</div>
-            </div>
-
-            <div class="card full-width fade-in">
-                <h2>Ward-wise Collection Analysis</h2>
-                <div class="chart-container">
-                    <canvas id="collectionChart"></canvas>
+                    <select class="ward-selector">
+                        <option value="all">All Wards</option>
+                        <option value="aundh">Aundh Ward</option>
+                        <option value="kothrud">Kothrud Ward</option>
+                        <option value="hadapsar">Hadapsar Ward</option>
+                        <option value="bibwewadi">Bibwewadi Ward</option>
+                        <option value="dhanakawadi">Dhanakawadi Ward</option>
+                    </select>
+                    <input type="date" id="date-selector">
                 </div>
             </div>
 
-            <div class="card fade-in">
-                <h2>Waste Type Distribution</h2>
-                <div class="chart-container">
-                    <canvas id="wasteTypeChart"></canvas>
+            <div class="grid-container">
+                <div class="card metric-card">
+                    <h3>Daily Waste Collection</h3>
+                    <div class="metric-value">875 MT</div>
+                    <div class="metric-trend trend-up">↑ 5% from last month</div>
+                </div>
+
+                <div class="card metric-card">
+                    <h3>Segregation Rate</h3>
+                    <div class="metric-value">68%</div>
+                    <div class="metric-trend trend-up">↑ 12% improvement</div>
+                </div>
+
+                <div class="card metric-card">
+                    <h3>Vehicle Efficiency</h3>
+                    <div class="metric-value">92%</div>
+                    <div class="metric-trend trend-up">↑ 3% optimization</div>
+                </div>
+
+                <div class="card metric-card">
+                    <h3>Citizen Complaints</h3>
+                    <div class="metric-value">127</div>
+                    <div class="metric-trend trend-down">↓ 15% decrease</div>
+                </div>
+
+                <div class="card full-width">
+                    <h2>Ward-wise Collection Analysis</h2>
+                    <div class="chart-container">
+                        <canvas id="collectionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Waste Type Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="wasteTypeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Complaints Resolution</h2>
+                    <div class="chart-container">
+                        <canvas id="complaintsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card full-width">
+                    <h2>Ward Performance Report</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ward Name</th>
+                                <th>Daily Collection (MT)</th>
+                                <th>Segregation Rate</th>
+                                <th>Vehicle Count</th>
+                                <th>Staff Count</th>
+                                <th>Complaints</th>
+                                <th>Resolution Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ward-table"></tbody>
+                    </table>
                 </div>
             </div>
-
-            <div class="card fade-in">
-                <h2>Complaints Resolution</h2>
-                <div class="chart-container">
-                    <canvas id="complaintsChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card full-width fade-in">
-                <h2>Ward Performance Report</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ward Name</th>
-                            <th>Daily Collection (MT)</th>
-                            <th>Segregation Rate</th>
-                            <th>Vehicle Count</th>
-                            <th>Staff Count</th>
-                            <th>Complaints</th>
-                            <th>Resolution Rate</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ward-table"></tbody>
-                </table>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script>
